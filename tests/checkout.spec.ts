@@ -4,12 +4,14 @@ import { loginUsers } from '../src/data/loginUsers';
 import { LoginPage } from '../src/pages/LoginPage';
 import { ProductsPage } from '../src/pages/ProductsPage';
 import { CartPage } from '../src/pages/CartPage';
+import { CheckoutPage } from '../src/pages/CheckoutPage';
 import { products } from '../src/data/products';
 
 test(`checkout`, async ({ page }) => {
   const loginPage = new LoginPage(page);
   const productsPage = new ProductsPage(page);
   const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
 
   // login
   await page.goto('/');
@@ -53,33 +55,51 @@ test(`checkout`, async ({ page }) => {
   await expect(productsPage.title).toHaveText('Checkout: Your Information');
 
   // fill information
-  await cartPage.firstNameInput.pressSequentially(faker.person.firstName(), {
+  await checkoutPage.firstNameInput.pressSequentially(
+    faker.person.firstName(),
+    {
+      delay: 50,
+    },
+  );
+  await checkoutPage.lastNameInput.pressSequentially(faker.person.lastName(), {
     delay: 50,
   });
-  await cartPage.lastNameInput.pressSequentially(faker.person.lastName(), {
-    delay: 50,
-  });
-  await cartPage.postalCodeInput.pressSequentially(faker.location.zipCode(), {
-    delay: 50,
-  });
+  await checkoutPage.postalCodeInput.pressSequentially(
+    faker.location.zipCode(),
+    {
+      delay: 50,
+    },
+  );
 
   // checkout step two
-  await cartPage.continueButton.click();
+  await checkoutPage.continueButton.click();
   await expect(page).toHaveURL('/checkout-step-two.html');
   await expect(productsPage.title).toHaveText('Checkout: Overview');
-  // total price
-  const totalPrice = backpackPrice + lightBikePrice;
-  await expect(productsPage.subTotal).toHaveText(
-    `Item total: $${totalPrice.toString()}`,
+  // sub total price
+  const subTotalPrice = backpackPrice + lightBikePrice;
+  await expect(checkoutPage.subTotal).toHaveText(
+    `Item total: $${subTotalPrice.toString()}`,
+  );
+  // tax
+  const totalTax = Math.round(backpackPrice + lightBikePrice) * 0.08;
+  // console.log(totalTax.toFixed(2));
+  await expect(checkoutPage.taxLabel).toHaveText(
+    'Tax: $' + totalTax.toFixed(2),
+  );
+  // total price with tax
+  const totalPrice = totalTax + subTotalPrice;
+  // console.log(totalPrice.toFixed(2));
+  await expect(checkoutPage.totalLabel).toHaveText(
+    'Total: $' + totalPrice.toFixed(2),
   );
 
   // finish
-  await cartPage.finishButton.click();
+  await checkoutPage.finishButton.click();
   await expect(page).toHaveURL('/checkout-complete.html');
   await expect(productsPage.title).toHaveText('Checkout: Complete!');
   await expect(cartPage.completeHeader).toHaveText('Thank you for your order!');
 
-  //   await cartPage.backHomeButton.click();
+  //   await checkoutPage.backHomeButton.click();
   //   await productsPage.expectLoaded();
   //   await expect(cartPage.shoppingCartBadge).not.toBeVisible();
 });
