@@ -8,9 +8,6 @@ export class ProductsPage {
   readonly inventoryContainer: Locator;
   readonly burgerButton: Locator;
   readonly aboutBtn: Locator;
-  readonly subTotal: Locator;
-  readonly taxLabel: Locator;
-  readonly totalLabel: Locator;
 
   // set up products page locators
   constructor(page: Page) {
@@ -21,9 +18,6 @@ export class ProductsPage {
     this.inventoryContainer = page.getByTestId('inventory-container');
     this.burgerButton = page.getByTestId('open-menu');
     this.aboutBtn = page.locator('[href="https://saucelabs.com/"]');
-    this.subTotal = page.getByTestId('subtotal-label');
-    this.taxLabel = page.getByTestId('tax-label');
-    this.totalLabel = page.getByTestId('total-label');
   }
 
   // verify the products page is displayed
