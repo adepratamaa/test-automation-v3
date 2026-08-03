@@ -47,14 +47,15 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5-mini' }}
+          FAILURE_SUMMARY_PATH: failure-summary.md
         run: npm run summarize:failures
 
       - name: Upload failure summary
-        if: ${{ !cancelled() && hashFiles('test-results/failure-summary.md') != '' }}
+        if: ${{ !cancelled() && hashFiles('failure-summary.md') != '' }}
         uses: actions/upload-artifact@v5
         with:
           name: failure-summary
-          path: test-results/failure-summary.md
+          path: failure-summary.md
           retention-days: 30
 
       - name: Upload Playwright report
