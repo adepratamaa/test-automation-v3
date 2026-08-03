@@ -4,20 +4,30 @@ Automated UI tests using Playwright and TypeScript.
 
 ## Test coverage
 
-The checkout test verifies the complete purchase flow:
+### Login
+
+The login spec includes a skipped validation for successful login:
+
+- Verify the username field, password field, and login button are visible.
+- Log in with valid credentials.
+- Verify the Products page loads after login.
+
+### Checkout
+
+The checkout spec verifies the complete purchase flow:
 
 - Log in with valid credentials.
 - Add the backpack and bike light to the cart.
 - Verify the cart badge and number of products.
 - Verify each product's name, quantity, and price.
 - Calculate and verify the item subtotal.
+- Calculate and verify tax and total price.
 - Enter generated customer information.
 - Complete checkout and verify the confirmation message.
-- Return to the Products page and verify the cart is empty.
 
 ## Project structure
 
-The `playwright.config.ts` file contains the Playwright configuration. The `src/config` folder handles environment variables, while `src/data` stores login and product test data. Page locators and actions are kept in `src/pages`. The `tests` folder contains the end-to-end checkout test.
+The `playwright.config.ts` file contains the Playwright configuration. The `src/config` folder handles environment variables, while `src/data` stores login and product test data. Page locators and actions are kept in `src/pages`. The `tests` folder contains the Playwright specs for login and checkout coverage.
 
 ## Prerequisites
 
@@ -79,6 +89,46 @@ Run tests with the browser visible:
 ```bash
 npm run test:headed
 ```
+
+## Docker
+
+Build the Playwright Docker image:
+
+```bash
+docker build --tag test-automation-v3 .
+```
+
+Run the tests inside Docker:
+
+```bash
+docker run --rm \
+  --env BASE_URL \
+  --env VALID_USERNAME \
+  --env VALID_PASSWORD \
+  --volume "$(pwd)/playwright-report:/app/playwright-report" \
+  --volume "$(pwd)/test-results:/app/test-results" \
+  test-automation-v3
+```
+
+The `--env` options pass the required test configuration into the container. The mounted `playwright-report` and `test-results` folders keep Playwright reports, traces, screenshots, and videos available after the container exits.
+
+## GitHub Actions
+
+The GitHub Actions workflow in `.github/workflows/playwright.yml` runs on pushes to `main` and can also be started manually with `workflow_dispatch`.
+
+The workflow:
+
+- Checks out the repository.
+- Builds the Docker image with the tag `test-automation-v3`.
+- Runs `npm test` inside the Docker container.
+- Passes `BASE_URL`, `VALID_USERNAME`, and `VALID_PASSWORD` from GitHub Actions secrets.
+- Uploads the Playwright HTML report as a workflow artifact.
+
+Configure these repository secrets before running the workflow:
+
+- `BASE_URL`
+- `VALID_USERNAME`
+- `VALID_PASSWORD`
 
 ## Reports and debugging artifacts
 
