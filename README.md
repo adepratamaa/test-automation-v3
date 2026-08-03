@@ -108,8 +108,6 @@ docker run --rm \
   test-automation-v3
 ```
 
-The `--env-file .env` option passes the required test configuration into the container. This is needed because `.env` is excluded from the Docker image and `--env BASE_URL` only works when `BASE_URL` is already exported in your shell. The mounted `playwright-report` and `test-results` folders keep Playwright reports, traces, screenshots, and videos available after the container exits.
-
 ## GitHub Actions
 
 The GitHub Actions workflow in `.github/workflows/playwright.yml` runs on pushes to `main` and can also be started manually with `workflow_dispatch`.
