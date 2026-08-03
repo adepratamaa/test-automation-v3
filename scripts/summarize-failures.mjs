@@ -21,7 +21,7 @@ async function main() {
     ].join('\n');
 
     await writeSummary(summary);
-    console.log(`No Playwright JSON report found at ${resultsPath}.`);
+    logNotice(`No Playwright JSON report found at ${resultsPath}.`);
     return null;
   });
 
@@ -34,7 +34,7 @@ async function main() {
   if (failures.length === 0) {
     const summary = '# Failure Summary\n\nNo failed Playwright tests were found in the latest JSON report.\n';
     await writeSummary(summary);
-    console.log('No failed tests found.');
+    logNotice('No failed Playwright tests were found. Skipping OpenAI root-cause analysis.');
     return;
   }
 
@@ -214,6 +214,15 @@ function extractResponseText(data) {
     .filter((content) => content.type === 'output_text' && content.text)
     .map((content) => content.text)
     .join('\n');
+}
+
+function logNotice(message) {
+  if (process.env.GITHUB_ACTIONS) {
+    console.log(`::notice::${message}`);
+    return;
+  }
+
+  console.log(message);
 }
 
 async function writeSummary(summary) {
