@@ -2,7 +2,9 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - test/**
   # pull_request:
   #   branches: [main]
   workflow_dispatch:
@@ -39,6 +41,21 @@ jobs:
             --volume "${{ github.workspace }}/playwright-report:/app/playwright-report" \
             --volume "${{ github.workspace }}/test-results:/app/test-results" \
             test-automation-v3
+
+      - name: Summarize test failures with AI
+        if: ${{ !cancelled() }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5-mini' }}
+        run: npm run summarize:failures
+
+      - name: Upload failure summary
+        if: ${{ !cancelled() && hashFiles('test-results/failure-summary.md') != '' }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: failure-summary
+          path: test-results/failure-summary.md
+          retention-days: 30
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
