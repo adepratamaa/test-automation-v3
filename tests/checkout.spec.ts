@@ -101,5 +101,5 @@ test(`checkout`, async ({ page }) => {
 
   await page.getByTestId('back-to-products').click();
   await productsPage.expectLoaded();
-  await expect(cartPage.shoppingCartBadge).toBeVisible();
+  await expect(cartPage.shoppingCartBadge).not.toBeVisible();
 });
