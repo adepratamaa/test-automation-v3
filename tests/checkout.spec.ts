@@ -99,7 +99,7 @@ test(`checkout`, async ({ page }) => {
   await expect(productsPage.title).toHaveText('Checkout: Complete!');
   await expect(cartPage.completeHeader).toHaveText('Thank you for your order!');
 
-  //   await checkoutPage.backHomeButton.click();
-  //   await productsPage.expectLoaded();
-  //   await expect(cartPage.shoppingCartBadge).not.toBeVisible();
+  await page.getByTestId('back-to-products').click();
+  await productsPage.expectLoaded();
+  await expect(cartPage.shoppingCartBadge).toBeVisible();
 });
