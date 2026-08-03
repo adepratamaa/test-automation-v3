@@ -24,6 +24,12 @@ jobs:
       - name: Build Playwright Docker image
         run: docker build --tag test-automation-v3 .
 
+      - name: Validate required environment variables
+        run: |
+          : "${BASE_URL:?Missing BASE_URL secret}"
+          : "${VALID_USERNAME:?Missing VALID_USERNAME secret}"
+          : "${VALID_PASSWORD:?Missing VALID_PASSWORD secret}"
+
       - name: Run Playwright tests in Docker
         run: |
           docker run --rm \

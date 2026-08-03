@@ -102,15 +102,13 @@ Run the tests inside Docker:
 
 ```bash
 docker run --rm \
-  --env BASE_URL \
-  --env VALID_USERNAME \
-  --env VALID_PASSWORD \
+  --env-file .env \
   --volume "$(pwd)/playwright-report:/app/playwright-report" \
   --volume "$(pwd)/test-results:/app/test-results" \
   test-automation-v3
 ```
 
-The `--env` options pass the required test configuration into the container. The mounted `playwright-report` and `test-results` folders keep Playwright reports, traces, screenshots, and videos available after the container exits.
+The `--env-file .env` option passes the required test configuration into the container. This is needed because `.env` is excluded from the Docker image and `--env BASE_URL` only works when `BASE_URL` is already exported in your shell. The mounted `playwright-report` and `test-results` folders keep Playwright reports, traces, screenshots, and videos available after the container exits.
 
 ## GitHub Actions
 
