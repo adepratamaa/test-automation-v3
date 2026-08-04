@@ -21,29 +21,33 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Build Playwright Docker image
-        run: docker build --tag test-automation-v3 .
-
-      - name: Validate required environment variables
+      - name: Validate required secrets
         run: |
           : "${BASE_URL:?Missing BASE_URL secret}"
           : "${VALID_USERNAME:?Missing VALID_USERNAME secret}"
           : "${VALID_PASSWORD:?Missing VALID_PASSWORD secret}"
 
+      - name: Get short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Build Playwright Docker image
+        run: docker build --tag test-automation-v3:${{ env.SHORT_SHA }} .
+
       - name: Run Playwright tests in Docker
         run: |
           docker run --rm \
+            --init \
+            --ipc=host \
             --env BASE_URL \
             --env VALID_USERNAME \
             --env VALID_PASSWORD \
             --volume "${{ github.workspace }}/playwright-report:/app/playwright-report" \
-            --volume "${{ github.workspace }}/test-results:/app/test-results" \
-            test-automation-v3
+            test-automation-v3:${{ env.SHORT_SHA }}
 
       - name: Upload Playwright report
-        if: ${{ !cancelled() }}
+        if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: playwright-report
+          name: playwright-report-${{ env.SHORT_SHA }}
           path: playwright-report/
           retention-days: 30
