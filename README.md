@@ -136,6 +136,14 @@ npm run report
 
 Playwright stores the HTML report in `playwright-report/`. Traces are recorded for every run, while screenshots and videos are retained when a test fails.
 
+Generate the failure summary from Playwright's JSON report:
+
+```bash
+npm run summarize:failures
+```
+
+The GitHub Actions workflow runs this step after the Playwright job. If `OPENAI_API_KEY` is configured as a repository secret, the step asks OpenAI to summarize failed tests and suggest likely root causes. If the key is missing or the request fails, the script still writes a heuristic Markdown summary and appends it to the workflow job summary. Locally, the default summary path is `test-results/failure-summary.md`; in CI, the workflow writes `failure-summary.md` at the workspace root so Docker-owned report folders do not block the step.
+
 ## Configuration
 
 The main settings are defined in `playwright.config.ts`:
@@ -145,3 +153,4 @@ The main settings are defined in `playwright.config.ts`:
 - Tests run headlessly by default.
 - The project uses `data-test` attributes for `getByTestId()` locators.
 - CI runs use one retry and one worker.
+- Playwright emits HTML and JSON reports so CI can summarize failures.
